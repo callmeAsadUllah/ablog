@@ -13,6 +13,8 @@ app_name = 'blog'
 urlpatterns = [
     # post views
     path('', post_list, name='post_list'),
+    #
+    path('tag/<slug:tag_slug>/', post_list, name='post_list_by_tag'),
     # path('<id>/', post_detail, name='post_detail'),
     path(
         '<int:year>/<int:month>/<int:day>/<slug:post>/',
@@ -21,7 +23,7 @@ urlpatterns = [
     ),
     #
     path(
-        '<id>/share/',
+        '<int:id>/share/',
         post_share,
         name='post_share'
     ),

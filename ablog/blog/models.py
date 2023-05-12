@@ -6,6 +6,9 @@ from django.utils.timezone import now
 from django.urls import reverse
 
 
+from taggit.managers import TaggableManager
+
+
 class PostListManager(Manager):
     def get_queryset(self):
         return super().get_queryset().all()
@@ -57,9 +60,10 @@ class PostModel(Model):
     
     # manager
     # objects = Manager()
-    list = PostListManager()
+    # list = PostListManager()
     # published = PublishedManager()
-    
+    tags = TaggableManager()
+
     class Meta:
         ordering = [
             'publish'

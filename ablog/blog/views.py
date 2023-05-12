@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.shortcuts import (
-    render
+    render,
+    get_object_or_404
 )
 from django.core.mail import send_mail
 from django.core.paginator import (
@@ -11,28 +12,42 @@ from django.core.paginator import (
 from django.views.decorators.http import (
     require_POST
 )
+from django.db.models import Count
 
 
-from .models import (
+from taggit.models import Tag
+
+
+from blog.models import (
     PostModel
 )
-from .forms import (
+from blog.forms import (
     EmailPostForm,
     CommentForm
 )
 
 
-def post_list(request):
-    post_model = PostModel.list.all()
+def post_list(request, tag_slug=None):
+    tag = None
     
+    post_model = PostModel.objects.all()
+
+    if tag_slug:
+        try: tag = Tag.objects.get(slug=tag_slug)
+        except Tag.DoesNotExist: raise Http404("No Tag found.")
+        
+        post_model = post_model.filter(tags__in=[tag])
+        
     post_paginator = Paginator(post_model, 3)
     page_number = request.GET.get('page', 1)
+    
     try: posts = post_paginator.page(page_number)
     except PageNotAnInteger: posts = post_paginator.page(1)
     except EmptyPage: posts = post_paginator.page(post_paginator.num_pages)
     
     context = {
-        'posts': posts
+        'posts': posts,
+        'tag': tag
     }
     
     return render(
@@ -44,7 +59,7 @@ def post_list(request):
     
 def post_detail(request, year, month, day, post):
     try:
-        post_model = PostModel.list.get(
+        post_model = PostModel.objects.get(
             status=PostModel.StatusModel.PUBLISHED,
             slug=post,
             publish__year=year,
@@ -58,10 +73,26 @@ def post_detail(request, year, month, day, post):
     
     form = CommentForm()
     
+    # List of similar posts
+    post_tags_ids = post_model.tags.values_list('id', flat=True)
+    similar_posts = PostModel.objects.filter(
+        tags__in=post_tags_ids
+    ).exclude(
+        id=post_model.id
+    )
+    similar_posts = similar_posts.annotate(
+        same_tags=Count(
+            'tags'
+        )
+    )
+    # .order_by(
+    #     '-same_tags','-publish')[:4]
+    
     context = {
         'post': post_model,
         'comments': comments,
-        'form': form
+        'form': form,
+        'similar_posts': similar_posts
     }
 
     return render(
@@ -76,7 +107,7 @@ def post_share(request, id):
     sent = False
     
     try:
-        post_model = PostModel.list.get(id=id)
+        post_model = PostModel.objects.get(id=id)
     except PostModel.DoesNotExist:
         raise Http404("No Post found.")
     
@@ -113,7 +144,7 @@ def post_comment(request, id):
     comment = None
     
     try:
-        post_model = PostModel.list.get(id=id)
+        post_model = PostModel.objects.get(id=id)
     except PostModel.DoesNotExist:
         raise Http404("No Post found.")
     
@@ -134,3 +165,7 @@ def post_comment(request, id):
         'blog/post/comment.html',
         context
     )
+    
+    
+
+

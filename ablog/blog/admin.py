@@ -11,6 +11,7 @@ from .models import (
 @admin.register(PostModel)
 class PostAdminModel(ModelAdmin):
     list_display = [
+        'id',
         'title',
         'slug',
         'user',
