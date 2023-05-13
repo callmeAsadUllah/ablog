@@ -1,10 +1,15 @@
+import markdown
+
+
 from django import template
 from django.db.models import Count
+from django.utils.safestring import mark_safe
 
 
 from blog.models import (
     PostModel
 )
+
 
 register = template.Library()
 
@@ -23,7 +28,7 @@ def show_latest_posts(count=3):
 
 
 @register.simple_tag
-def get_most_commented_posts(count=5):
+def get_most_commented_posts(count=2): # default value for count is 5.
     return PostModel.objects.annotate(
         total_comments=Count(
             'comments'
@@ -33,3 +38,9 @@ def get_most_commented_posts(count=5):
     )[
         :count
     ]
+    
+    
+
+@register.filter(name='markdown')
+def markdown_format(text):
+    return mark_safe(markdown.markdown(text))

@@ -19,6 +19,11 @@
         <h2>
             I've written {% post_model_list %} posts so far.
         </h2>
+        <p>
+<a href="{% url "blog:post_feed" %}">
+ Subscribe to my RSS feed
+</a>
+</p>
         <h3>Latest posts</h3><p>
             {% show_latest_posts 3 %}
         </p>
