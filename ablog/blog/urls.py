@@ -10,7 +10,8 @@ from blog.views import (
     post_detail,
     post_list,
     post_share,
-    post_comment
+    post_comment,
+    post_search
 )
 
 
@@ -40,4 +41,5 @@ urlpatterns = [
         name='post_comment'
     ),
     path('feed/', PostFeed(), name='post_feed'),
+    path('search/', post_search, name='post_search'),
 ]

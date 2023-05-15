@@ -2,9 +2,11 @@
 
 {% load blog_tags %}
 
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no">
         <title>
             {% block title %}
             {% endblock title %}
@@ -12,6 +14,7 @@
         {% comment %} <link href="{% static "css/blog.css" %}" rel="stylesheet"> {% endcomment %}
     </head>
     <body>
+        <h1>base.html</h1>
         <div id="content">
             {% block content %}
             {% endblock %}
@@ -37,3 +40,4 @@
  {% endfor %}
     </body>
 </html>
+

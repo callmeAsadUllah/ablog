@@ -12,7 +12,13 @@ from django.core.paginator import (
 from django.views.decorators.http import (
     require_POST
 )
+from django.contrib.postgres.search import (
+    SearchVector,
+    SearchQuery,
+    SearchRank
+)
 from django.db.models import Count
+
 
 
 from taggit.models import Tag
@@ -23,8 +29,10 @@ from blog.models import (
 )
 from blog.forms import (
     EmailPostForm,
-    CommentForm
+    CommentForm,
+    SearchForm
 )
+
 
 
 def post_list(request, tag_slug=None):
@@ -165,7 +173,33 @@ def post_comment(request, id):
         'blog/post/comment.html',
         context
     )
-    
-    
 
 
+def post_search(request):
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            search_vector = SearchVector('title', weight='A') + SearchVector('body', weight='B')
+            search_query = SearchQuery(query)
+            results = PostModel.objects.annotate(
+                search=search_vector,
+                rank=SearchRank(
+                    search_vector,
+                    search_query
+                )).filter(rank__gte=0.3).order_by('-rank')
+    form = SearchForm()
+    
+    context = {
+        'form': form,
+        'query': query,
+        'results': results
+    }
+    
+    return render(
+        request,
+        'blog/post/search.html',
+        context
+    )

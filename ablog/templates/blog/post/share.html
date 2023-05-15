@@ -17,11 +17,13 @@ Share a post
 <h1>
     Share "{{ post.title }}" by e-mail
 </h1>
+
 <form method="POST">
-    {% csrf_token %}
+  {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Send e-mail">
 </form>
+
 {% endif %}
 
 {% endblock %}

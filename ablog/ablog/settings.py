@@ -25,7 +25,9 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     # taggit
     'taggit',
-    # blog
+    #
+    # 'django_bootstrap5',
+    # blog1
     'blog'
 ]
 
